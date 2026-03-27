@@ -4,8 +4,8 @@ import { CardContainer } from "@/components/CardContainer";
 import { FormModal } from "@/components/FormModal";
 import { Header } from "@/components/Header";
 import { Table } from "@/components/Table";
-import { ITransaction } from "@/types/transaction";
-import { useState } from "react";
+import { ITransaction, TotalCard } from "@/types/transaction";
+import { useMemo, useState } from "react";
 
 const transactions:ITransaction[] = [
   {
@@ -44,14 +44,38 @@ const transactions:ITransaction[] = [
 
 export default function Home() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [transactionData, setTransactionData] = useState(transactions);
+
+  const handleAddTransaction = (transaction: ITransaction) => {
+    setTransactionData( (prevState)=> [...prevState, transaction]);
+  }
+
+  const calculaTotal = useMemo(() => {
+    const totals = transactionData.reduce<TotalCard>((acc, transaction) => {
+      if (transaction.type === "INCOME") {
+        acc.income += transaction.price;
+        acc.total += transaction.price;
+      } else {
+        acc.outcome += transaction.price;
+        acc.total -= transaction.price;
+      }
+      return acc;
+    }, { total: 0, income: 0, outcome: 0 })
+
+    return totals;
+  }, [transactionData]);
+  
   return (
     <div className="h-full min-h-screen">
       <Header handleOpenFormModal={() => setIsFormModalOpen(true)}/>
       <BodyContainer>
-         <CardContainer />
-         <Table data={transactions} />
+         <CardContainer totalValues={calculaTotal} />
+         <Table data={transactionData} />
       </BodyContainer>
-      {isFormModalOpen && <FormModal closeModal={() => setIsFormModalOpen(false)} title="Criar Transação" addTransaction={() => console.log('oi')} />}
+      {isFormModalOpen && <FormModal 
+          closeModal={() => setIsFormModalOpen(false)} 
+          title="Criar Transação" 
+          addTransaction={handleAddTransaction} />}
     </div>
   );
 }
