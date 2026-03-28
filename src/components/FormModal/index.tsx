@@ -10,29 +10,40 @@ export type FormModalProps = {
    title: string;
    closeModal: () => void;
    addTransaction: (transaction: ITransaction) => void;
+   transactionToEdit?: ITransaction | null;
 }
 
-export const FormModal = ({ title, closeModal, addTransaction }: FormModalProps) => {
+export const FormModal = ({ title, closeModal, addTransaction, transactionToEdit }: FormModalProps) => {
   
   const {
     handleSubmit,
     register,
-    formState: { errors},
+    formState: { errors },
     setValue,
     watch
   } = useForm<TransactionFormData>({
     resolver: yupResolver(transactionSchema),
-    defaultValues
+    defaultValues: transactionToEdit ? {
+        title: transactionToEdit.title,
+        price: transactionToEdit.price,
+        category: transactionToEdit.category,
+        type: transactionToEdit.type
+    } : defaultValues
   })  
+
   const handleTypeChange = (type: TransactionType) => {
     setValue("type", type);
   }
 
   const handleSubmitForm = (data: TransactionFormData) => {
-    addTransaction(data as ITransaction);
+    const payload = {
+        ...data,
+        id: transactionToEdit ? transactionToEdit.id : String(new Date().getTime()),
+        data: transactionToEdit ? transactionToEdit.data : new Date()
+    }
+    addTransaction(payload as ITransaction);
     closeModal();
   }
-
 
   const type = watch("type");
 
@@ -43,13 +54,11 @@ export const FormModal = ({ title, closeModal, addTransaction }: FormModalProps)
         role="dialog"
         aria-modal="true"
     >
-       <div className="fixed inset-0 bg-gray-700 opacity-75 transition-opacity "
-           aria-hidden="true"
-        />
+       <div className="fixed inset-0 bg-gray-700 opacity-75 transition-opacity" aria-hidden="true" />
 
        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div className="relative transform overflow-hidden rounder-lg  bg-modal text-left shadow-xl sm:w-full sm:max-w-lg">
+                <div className="relative transform overflow-hidden rounded-lg bg-modal text-left shadow-xl sm:w-full sm:max-w-lg">
                     <button type="button" className="absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600"
                      onClick={closeModal}
                      aria-label="Fechar"
@@ -60,10 +69,7 @@ export const FormModal = ({ title, closeModal, addTransaction }: FormModalProps)
                      <div className="bg-modal px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                         <div className="sm:flex sm:items-start">
                             <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                                <h1
-                                    className="font-semibold leading-9 text-title text-2xl"
-                                    id="modal-title"
-                                >
+                                <h1 className="font-semibold leading-9 text-title text-2xl" id="modal-title">
                                     {title}
                                 </h1>
                             </div>
@@ -94,7 +100,7 @@ export const FormModal = ({ title, closeModal, addTransaction }: FormModalProps)
                            type="text"
                            placeholder="Categoria"  
                            {...register("category")} 
-                            error={errors.category?.message}
+                           error={errors.category?.message}
                         />
                          
                         <button 
@@ -108,8 +114,6 @@ export const FormModal = ({ title, closeModal, addTransaction }: FormModalProps)
                 </div>
            </div>
         </div> 
-         
-
     </div>
   )
 }
