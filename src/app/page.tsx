@@ -71,6 +71,7 @@ export default function Home() {
         <Table
           data={transactionsData ?? []}
           handleEdit={handleOpenEditTransaction}
+          onAddTransaction={() => setIsFormModalOpen(true)}
         />
       </BodyContainer>
       {isFormModalOpen && (

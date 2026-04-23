@@ -4,12 +4,14 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { DeleteModal } from "../DeleteModal";
 import { useTransaction } from "@/hooks/transaction/useTransaction";
+import { EmptyState } from "../EmptyState";
 
 export type TableProps = {
   data: ITransaction[];
   handleEdit: (id: string) => void;
+  onAddTransaction?: () => void;
 };
-export const Table = ({ data, handleEdit }: TableProps) => {
+export const Table = ({ data, handleEdit, onAddTransaction }: TableProps) => {
   const [isOpen, setOpen] = useState<boolean>(false);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
@@ -26,6 +28,20 @@ export const Table = ({ data, handleEdit }: TableProps) => {
       setOpen(false);
     }
   };
+
+  // Se não há dados, renderiza o estado vazio
+  if (data.length === 0) {
+    return (
+      <>
+        <EmptyState onAddTransaction={onAddTransaction || (() => {})} />
+        <DeleteModal
+          isOpen={isOpen}
+          setOpen={setOpen}
+          handleDelete={handleDelete}
+        />
+      </>
+    );
+  }
   return (
     <>
       <table className="w-full mt-16 border-separate border-spacing-y-2">
