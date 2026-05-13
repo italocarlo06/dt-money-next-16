@@ -15,9 +15,3 @@ export class PrismaService extends PrismaClient {
     super({ adapter });
   }
 }
-/*export class PrismaService extends PrismaClient {
-  constructor() {
-    const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
-    super({ adapter });
-  }
-}*/

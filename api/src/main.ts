@@ -11,7 +11,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }))
 
-  //Swagger setup
   const config = new DocumentBuilder()
     .setTitle('DT Money API')
     .setDescription('API para gerenciamento de transações financeiras')
@@ -22,8 +21,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  
-  // habilitar cors
   app.enableCors();
   await app.listen(process.env.PORT ?? 3333);
 }
